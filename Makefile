@@ -1,10 +1,13 @@
-.PHONY: help validate init-terraform start-netbox stop-netbox status clean
+.PHONY: help validate init-terraform plan-terraform apply-terraform status clean setup
+.PHONY: netbox-up netbox-down netbox-restart netbox-logs netbox-status netbox-backup netbox-shell netbox-create-superuser
 
 help: ## Show this help message
 	@echo "Homeserver Infrastructure Management"
 	@echo ""
 	@echo "Available targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@echo ""
+	@echo "For more Netbox commands, run: make -C netbox help"
 
 validate: ## Validate the setup
 	@./validate-setup.sh
@@ -21,25 +24,34 @@ apply-terraform: ## Apply Terraform changes
 	@echo "Applying Terraform changes..."
 	@cd terraform/proxmox && terraform apply
 
-start-netbox: ## Start Netbox containers
-	@echo "Starting Netbox..."
-	@cd netbox && docker compose up -d
-	@echo "Netbox is starting. Access it at http://localhost:8000"
+# Netbox Management (delegates to netbox/Makefile)
+netbox-up: ## Start Netbox containers
+	@$(MAKE) -C netbox netbox-up
 
-stop-netbox: ## Stop Netbox containers
-	@echo "Stopping Netbox..."
-	@cd netbox && docker compose down
+netbox-down: ## Stop Netbox containers
+	@$(MAKE) -C netbox netbox-down
 
-restart-netbox: ## Restart Netbox containers
-	@echo "Restarting Netbox..."
-	@cd netbox && docker compose restart
+netbox-restart: ## Restart Netbox containers
+	@$(MAKE) -C netbox netbox-restart
 
-logs-netbox: ## Show Netbox logs
-	@cd netbox && docker compose logs -f
+netbox-logs: ## Show Netbox logs
+	@$(MAKE) -C netbox netbox-logs
+
+netbox-status: ## Show Netbox status
+	@$(MAKE) -C netbox netbox-status
+
+netbox-backup: ## Backup Netbox database
+	@$(MAKE) -C netbox netbox-backup
+
+netbox-shell: ## Open shell in Netbox container
+	@$(MAKE) -C netbox netbox-shell
+
+netbox-create-superuser: ## Create Netbox superuser
+	@$(MAKE) -C netbox netbox-create-superuser
 
 status: ## Show status of all services
 	@echo "=== Netbox Status ==="
-	@cd netbox && docker compose ps 2>/dev/null || echo "Netbox not running"
+	@$(MAKE) -C netbox netbox-status 2>/dev/null || echo "Netbox not running"
 	@echo ""
 	@echo "=== Terraform Status ==="
 	@if [ -d terraform/proxmox/.terraform ]; then \
@@ -49,10 +61,7 @@ status: ## Show status of all services
 		echo "Terraform not initialized ✗"; \
 	fi
 
-backup-netbox: ## Backup Netbox database
-	@echo "Backing up Netbox database..."
-	@cd netbox && docker compose exec -T postgres pg_dump -U netbox netbox > ../backups/netbox-backup-$$(date +%Y%m%d-%H%M%S).sql
-	@echo "Backup completed"
+backup-netbox: netbox-backup ## Backup Netbox database (alias)
 
 setup: ## Initial setup (copy example files)
 	@echo "Setting up configuration files..."
@@ -74,7 +83,7 @@ setup: ## Initial setup (copy example files)
 	@echo "1. Edit terraform/proxmox/terraform.tfvars with your Proxmox credentials"
 	@echo "2. Edit netbox/env/*.env with your Netbox configuration"
 	@echo "3. Run 'make init-terraform' to initialize Terraform"
-	@echo "4. Run 'make start-netbox' to start Netbox"
+	@echo "4. Run 'make netbox-up' to start Netbox"
 
 clean: ## Clean up temporary files
 	@echo "Cleaning up..."

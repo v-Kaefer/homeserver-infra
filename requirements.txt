@@ -1,0 +1,5 @@
+# Python requirements for homeserver infrastructure automation
+
+# Netbox Python API client
+# Required for: scripts/setup-netbox-site.py
+pynetbox>=7.0.0
