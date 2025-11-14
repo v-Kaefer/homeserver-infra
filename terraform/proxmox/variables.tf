@@ -1,0 +1,27 @@
+variable "proxmox_api_url" {
+  description = "Proxmox API URL"
+  type        = string
+}
+
+variable "proxmox_api_token_id" {
+  description = "Proxmox API token ID"
+  type        = string
+}
+
+variable "proxmox_api_token_secret" {
+  description = "Proxmox API token secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_tls_insecure" {
+  description = "Skip TLS verification for Proxmox API"
+  type        = bool
+  default     = false
+}
+
+variable "proxmox_node" {
+  description = "Proxmox node name"
+  type        = string
+  default     = "pve"
+}
