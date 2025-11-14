@@ -18,6 +18,14 @@ secrets/
 .env
 .env.*
 
+# Netbox configuration
+netbox/env/netbox.env
+netbox/env/postgres.env
+
+# Backup files
+backups/
+*.sql
+
 # OS files
 .DS_Store
 Thumbs.db
