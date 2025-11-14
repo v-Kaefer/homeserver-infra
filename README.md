@@ -8,6 +8,16 @@ New to this infrastructure setup? Start here:
 
 👉 **[Getting Started Guide](docs/getting-started.md)** - Complete walkthrough from installation to your first VM
 
+### Quick Validation
+
+Run the validation script to check your setup:
+
+```bash
+./validate-setup.sh
+```
+
+This will verify that all required tools are installed and configurations are in place.
+
 ## Overview
 
 This repository provides Infrastructure as Code (IaC) and Network as Code (NaC) solutions for managing a homeserver environment.
@@ -44,6 +54,34 @@ This repository provides Infrastructure as Code (IaC) and Network as Code (NaC) 
 ```
 
 ## Quick Start
+
+### Automated Setup (Recommended)
+
+Use the provided Makefile for easy setup:
+
+```bash
+# Initial setup - copies example configuration files
+make setup
+
+# Edit configuration files with your details
+# - terraform/proxmox/terraform.tfvars
+# - netbox/env/netbox.env
+# - netbox/env/postgres.env
+
+# Validate your setup
+make validate
+
+# Start Netbox
+make start-netbox
+
+# Initialize Terraform
+make init-terraform
+
+# View all available commands
+make help
+```
+
+### Manual Setup
 
 ### 1. Set Up Proxmox
 
