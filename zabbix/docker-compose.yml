@@ -1,0 +1,49 @@
+services:
+  zabbix-postgres:
+    image: postgres:15-alpine
+    env_file: env/postgres.env
+    volumes:
+      - zabbix-postgres-data:/var/lib/postgresql/data
+    networks:
+      - zabbix-net
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-latest
+    env_file: env/zabbix.env
+    depends_on:
+      - zabbix-postgres
+    ports:
+      - "10051:10051"
+    volumes:
+      - zabbix-server-data:/var/lib/zabbix
+    networks:
+      - zabbix-net
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-latest
+    env_file: env/zabbix.env
+    depends_on:
+      - zabbix-server
+      - zabbix-postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - zabbix-net
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-latest
+    env_file: env/zabbix-agent.env
+    depends_on:
+      - zabbix-server
+    privileged: true
+    pid: "host"
+    networks:
+      - zabbix-net
+
+volumes:
+  zabbix-postgres-data:
+  zabbix-server-data:
+
+networks:
+  zabbix-net:
+    driver: bridge

@@ -1,6 +1,6 @@
 # homeserver-infra
 
-Infrastructure as Code (IaC) and Network as Code (NaC) for Proxmox-based homeserver using Terraform and Netbox.
+Infrastructure as Code (IaC) and Network as Code (NaC) for Proxmox-based homeserver using Terraform, Netbox, and Zabbix.
 
 ## Quick Start
 
@@ -12,9 +12,12 @@ make setup
 # - terraform/proxmox/terraform.tfvars (Proxmox credentials)
 # - netbox/env/netbox.env (Netbox config)
 # - netbox/env/postgres.env (Database config)
+# - zabbix/env/zabbix.env (Zabbix config)
+# - zabbix/env/postgres.env (Zabbix database config)
 
 # 3. Start services
 make netbox-up          # Start Netbox
+make zabbix-up          # Start Zabbix
 make init-terraform     # Initialize Terraform
 
 # 4. Deploy infrastructure
@@ -30,6 +33,7 @@ make help
 - **Proxmox VE** - Hypervisor for VMs and containers
 - **Terraform** - Infrastructure as Code automation
 - **Netbox** - Network source of truth (IPAM/DCIM)
+- **Zabbix** - Infrastructure monitoring and alerting
 
 ## Example: Deploy a VM
 
@@ -57,6 +61,7 @@ module "web_server" {
 - [Proxmox Setup](docs/proxmox-setup.md) - Install and configure Proxmox
 - [Terraform Guide](docs/terraform-setup.md) - Terraform usage and examples
 - [Netbox Guide](docs/netbox-setup.md) - Netbox deployment and API
+- [Zabbix Guide](docs/zabbix-setup.md) - Zabbix monitoring setup
 
 ## Project Structure
 
@@ -65,9 +70,11 @@ module "web_server" {
 │   ├── proxmox/       - Main Terraform configuration
 │   └── modules/       - Reusable modules
 ├── netbox/            - Netbox Docker deployment
+├── zabbix/            - Zabbix monitoring deployment
 ├── docs/              - Detailed documentation
 ├── Makefile           - Main automation tasks
-└── netbox/Makefile    - Netbox-specific operations
+├── netbox/Makefile    - Netbox-specific operations
+└── zabbix/Makefile    - Zabbix-specific operations
 ```
 
 ## Common Commands
@@ -88,6 +95,14 @@ make netbox-logs       # View logs
 make netbox-backup     # Backup database
 ```
 
+**Zabbix:**
+```bash
+make zabbix-up         # Start Zabbix
+make zabbix-down       # Stop Zabbix
+make zabbix-logs       # View logs
+make zabbix-backup     # Backup database
+```
+
 **Utilities:**
 ```bash
 make status            # Show service status
@@ -99,4 +114,5 @@ make clean             # Clean temporary files
 - [Proxmox Documentation](https://pve.proxmox.com/pve-docs/)
 - [Terraform Documentation](https://www.terraform.io/docs)
 - [Netbox Documentation](https://docs.netbox.dev/)
+- [Zabbix Documentation](https://www.zabbix.com/documentation/current/)
 - [Changelog](CHANGELOG.md)

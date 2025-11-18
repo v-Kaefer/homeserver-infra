@@ -109,6 +109,23 @@ else
 fi
 echo ""
 
+# Check Zabbix configuration
+echo "Checking Zabbix configuration..."
+if [ -f "zabbix/env/zabbix.env" ]; then
+    print_status 0 "zabbix.env exists"
+else
+    print_status 1 "zabbix.env not found"
+    print_warning "Copy zabbix/env/zabbix.env.example to zabbix/env/zabbix.env and configure it"
+fi
+
+if [ -f "zabbix/env/postgres.env" ]; then
+    print_status 0 "zabbix postgres.env exists"
+else
+    print_status 1 "zabbix postgres.env not found"
+    print_warning "Copy zabbix/env/postgres.env.example to zabbix/env/postgres.env and configure it"
+fi
+echo ""
+
 # Check if Netbox is running
 echo "Checking Netbox status..."
 if command_exists docker && docker compose version >/dev/null 2>&1; then
@@ -130,6 +147,27 @@ else
 fi
 echo ""
 
+# Check if Zabbix is running
+echo "Checking Zabbix status..."
+if command_exists docker && docker compose version >/dev/null 2>&1; then
+    cd zabbix 2>/dev/null || true
+    if docker compose ps 2>/dev/null | grep -q "zabbix"; then
+        if docker compose ps 2>/dev/null | grep "zabbix" | grep -q "Up"; then
+            print_status 0 "Zabbix is running"
+        else
+            print_status 1 "Zabbix containers exist but are not running"
+            print_warning "Run 'cd zabbix && docker compose up -d'"
+        fi
+    else
+        print_status 1 "Zabbix is not running"
+        print_warning "Run 'cd zabbix && docker compose up -d'"
+    fi
+    cd .. 2>/dev/null || true
+else
+    print_warning "Cannot check Zabbix status (Docker Compose not available)"
+fi
+echo ""
+
 # Summary
 echo "================================================"
 echo "Validation Complete"
@@ -140,6 +178,8 @@ echo "1. Review any failed checks above"
 echo "2. Follow the Getting Started guide: docs/getting-started.md"
 echo "3. Configure terraform.tfvars with your Proxmox credentials"
 echo "4. Configure Netbox environment files"
-echo "5. Start Netbox: cd netbox && docker compose up -d"
-echo "6. Initialize Terraform: cd terraform/proxmox && terraform init"
+echo "5. Configure Zabbix environment files"
+echo "6. Start Netbox: make netbox-up"
+echo "7. Start Zabbix: make zabbix-up"
+echo "8. Initialize Terraform: make init-terraform"
 echo ""

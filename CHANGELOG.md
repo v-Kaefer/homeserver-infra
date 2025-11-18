@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Zabbix monitoring integration**:
+  - Docker Compose stack for Zabbix server, web interface, PostgreSQL, and agent
+  - Separate Zabbix Makefile (`zabbix/Makefile`) with dedicated commands:
+    - `zabbix-up` and `zabbix-down` for service management
+    - `zabbix-shell`, `zabbix-logs`, `zabbix-status` for debugging
+    - `zabbix-backup` and `zabbix-restore` for data management
+    - `zabbix-update` for version upgrades
+  - Environment file templates for Zabbix configuration
+  - Comprehensive Zabbix setup documentation (`docs/zabbix-setup.md`)
+  - Integration guide for monitoring Proxmox and VMs
+  - Zabbix README with quick start instructions
+- Main Makefile updated with Zabbix commands
+- `.gitignore` updated to exclude Zabbix environment files
+
+### Changed
+- README.md updated to include Zabbix in technology stack
+- Project structure documentation updated to include Zabbix directory
+- Setup command now includes Zabbix configuration files
+- Status command now shows Zabbix service status
+
+### Previous Changes
 - CHANGELOG.md for tracking project changes
 - Separate Netbox Makefile (`netbox/Makefile`) with dedicated commands:
   - `netbox-up` and `netbox-down` for service management
