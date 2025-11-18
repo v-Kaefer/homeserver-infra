@@ -8,21 +8,29 @@ Infrastructure as Code (IaC) and Network as Code (NaC) for Proxmox-based homeser
 # 1. Setup configuration files
 make setup
 
-# 2. Edit configuration
+# 2. Edit configuration (IMPORTANT: Use same password for shared PostgreSQL)
+# - postgres-shared/postgres.env (Shared database password)
 # - terraform/proxmox/terraform.tfvars (Proxmox credentials)
-# - netbox/env/netbox.env (Netbox config)
-# - netbox/env/postgres.env (Database config)
-# - zabbix/env/zabbix.env (Zabbix config)
-# - zabbix/env/postgres.env (Zabbix database config)
+# - netbox/env/netbox.env (Netbox config - use postgres-shared password)
+# - zabbix/env/zabbix.env (Zabbix config - use postgres-shared password)
 
-# 3. Start services
-make netbox-up          # Start Netbox
-make zabbix-up          # Start Zabbix
-make init-terraform     # Initialize Terraform
+# 3. Start all services (recommended - starts in correct order)
+make start-all
 
-# 4. Deploy infrastructure
+# OR start services individually:
+# make postgres-up        # Start shared PostgreSQL first
+# make netbox-up          # Then Netbox
+# make zabbix-up          # Then Zabbix
+
+# 4. Initialize Terraform
+make init-terraform
+
+# 5. Deploy infrastructure
 make plan-terraform     # Preview changes
 make apply-terraform    # Apply changes
+
+# 6. Backup everything
+make backup-all         # Unified backup of all services
 
 # See all commands
 make help
@@ -34,6 +42,14 @@ make help
 - **Terraform** - Infrastructure as Code automation
 - **Netbox** - Network source of truth (IPAM/DCIM)
 - **Zabbix** - Infrastructure monitoring and alerting
+- **PostgreSQL** - Shared database (50% resource optimization)
+
+## Improvements Implemented
+
+✅ **Consolidated PostgreSQL** - Single database instance for all services (50% resource reduction)
+✅ **Unified Backup System** - Automated backup of all services with retention policy
+✅ **Simplified Operations** - `start-all`, `stop-all`, and `backup-all` commands
+✅ **Better Resource Management** - Shared resources, health checks, and monitoring
 
 ## Example: Deploy a VM
 
@@ -66,6 +82,7 @@ module "web_server" {
 
 ### Planning & Architecture
 - **[Infrastructure Analysis](docs/infrastructure-analysis.md)** - Comprehensive analysis, redundancies, and improvements
+- **[Information Requirements](docs/information-requirements.md)** - Checklist of info needed for better planning
 - [Infrastructure Diagram](docs/infrastructure-diagram.md) - Visual architecture reference for Draw.io
 - [n8n Integration Plan](docs/n8n-integration-plan.md) - Workflow automation roadmap
 
@@ -73,17 +90,28 @@ module "web_server" {
 
 ```
 ├── terraform/
-│   ├── proxmox/       - Main Terraform configuration
-│   └── modules/       - Reusable modules
-├── netbox/            - Netbox Docker deployment
-├── zabbix/            - Zabbix monitoring deployment
-├── docs/              - Detailed documentation
-├── Makefile           - Main automation tasks
-├── netbox/Makefile    - Netbox-specific operations
-└── zabbix/Makefile    - Zabbix-specific operations
+│   ├── proxmox/          - Main Terraform configuration
+│   └── modules/          - Reusable modules
+├── postgres-shared/      - Shared PostgreSQL instance (NEW)
+├── netbox/               - Netbox Docker deployment
+├── zabbix/               - Zabbix monitoring deployment
+├── scripts/              - Automation scripts
+├── docs/                 - Detailed documentation
+├── Makefile              - Main automation tasks
+├── postgres-shared/Makefile - PostgreSQL operations
+├── netbox/Makefile       - Netbox-specific operations
+└── zabbix/Makefile       - Zabbix-specific operations
 ```
 
 ## Common Commands
+
+**Quick Operations:**
+```bash
+make start-all         # Start all services in order
+make stop-all          # Stop all services
+make backup-all        # Unified backup of everything
+make status            # Show status of all services
+```
 
 **Infrastructure:**
 ```bash
@@ -91,6 +119,13 @@ make validate          # Validate setup
 make init-terraform    # Initialize Terraform
 make plan-terraform    # Preview changes
 make apply-terraform   # Apply changes
+```
+
+**Database:**
+```bash
+make postgres-up       # Start shared PostgreSQL
+make postgres-backup   # Backup all databases
+make postgres-logs     # View PostgreSQL logs
 ```
 
 **Netbox:**

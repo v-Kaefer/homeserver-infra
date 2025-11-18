@@ -27,6 +27,12 @@ zabbix/env/zabbix.env
 zabbix/env/postgres.env
 zabbix/env/zabbix-agent.env
 
+# Shared PostgreSQL configuration
+postgres-shared/postgres.env
+
+# n8n configuration
+n8n/env/*.env
+
 # Backup files
 backups/
 *.sql

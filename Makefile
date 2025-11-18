@@ -1,6 +1,8 @@
 .PHONY: help validate init-terraform plan-terraform apply-terraform status clean setup
 .PHONY: netbox-up netbox-down netbox-restart netbox-logs netbox-status netbox-backup netbox-shell netbox-create-superuser
 .PHONY: zabbix-up zabbix-down zabbix-restart zabbix-logs zabbix-status zabbix-backup zabbix-shell
+.PHONY: postgres-up postgres-down postgres-logs postgres-status postgres-backup
+.PHONY: backup-all start-all stop-all
 
 help: ## Show this help message
 	@echo "Homeserver Infrastructure Management"
@@ -10,6 +12,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "For more Netbox commands, run: make -C netbox help"
 	@echo "For more Zabbix commands, run: make -C zabbix help"
+	@echo "For more PostgreSQL commands, run: make -C postgres-shared help"
 
 validate: ## Validate the setup
 	@./validate-setup.sh
@@ -73,7 +76,46 @@ zabbix-backup: ## Backup Zabbix database
 zabbix-shell: ## Open shell in Zabbix container
 	@$(MAKE) -C zabbix zabbix-shell
 
+# Shared PostgreSQL Management
+postgres-up: ## Start shared PostgreSQL
+	@$(MAKE) -C postgres-shared postgres-up
+
+postgres-down: ## Stop shared PostgreSQL
+	@$(MAKE) -C postgres-shared postgres-down
+
+postgres-logs: ## Show PostgreSQL logs
+	@$(MAKE) -C postgres-shared postgres-logs
+
+postgres-status: ## Show PostgreSQL status
+	@$(MAKE) -C postgres-shared postgres-status
+
+postgres-backup: ## Backup all PostgreSQL databases
+	@$(MAKE) -C postgres-shared postgres-backup
+
+# Unified Operations
+start-all: ## Start all services (recommended order)
+	@echo "Starting all services..."
+	@$(MAKE) postgres-up
+	@sleep 5
+	@$(MAKE) netbox-up
+	@$(MAKE) zabbix-up
+	@echo "All services started!"
+
+stop-all: ## Stop all services
+	@echo "Stopping all services..."
+	@$(MAKE) netbox-down
+	@$(MAKE) zabbix-down
+	@$(MAKE) postgres-down
+	@echo "All services stopped!"
+
+backup-all: ## Backup all services (unified backup)
+	@echo "Running unified backup..."
+	@./scripts/backup-all.sh
+
 status: ## Show status of all services
+	@echo "=== Shared PostgreSQL Status ==="
+	@$(MAKE) -C postgres-shared postgres-status 2>/dev/null || echo "Shared PostgreSQL not running"
+	@echo ""
 	@echo "=== Netbox Status ==="
 	@$(MAKE) -C netbox netbox-status 2>/dev/null || echo "Netbox not running"
 	@echo ""
@@ -92,11 +134,17 @@ backup-netbox: netbox-backup ## Backup Netbox database (alias)
 
 backup-zabbix: zabbix-backup ## Backup Zabbix database (alias)
 
+backup-postgres: postgres-backup ## Backup PostgreSQL databases (alias)
+
 setup: ## Initial setup (copy example files)
 	@echo "Setting up configuration files..."
 	@if [ ! -f terraform/proxmox/terraform.tfvars ]; then \
 		cp terraform/proxmox/terraform.tfvars.example terraform/proxmox/terraform.tfvars; \
 		echo "Created terraform.tfvars - Please edit with your Proxmox credentials"; \
+	fi
+	@if [ ! -f postgres-shared/postgres.env ]; then \
+		cp postgres-shared/postgres.env.example postgres-shared/postgres.env; \
+		echo "Created postgres-shared/postgres.env - Please edit with your password"; \
 	fi
 	@if [ ! -f netbox/env/netbox.env ]; then \
 		cp netbox/env/netbox.env.example netbox/env/netbox.env; \
@@ -121,12 +169,12 @@ setup: ## Initial setup (copy example files)
 	@mkdir -p backups
 	@echo ""
 	@echo "Setup complete! Next steps:"
-	@echo "1. Edit terraform/proxmox/terraform.tfvars with your Proxmox credentials"
-	@echo "2. Edit netbox/env/*.env with your Netbox configuration"
-	@echo "3. Edit zabbix/env/*.env with your Zabbix configuration"
-	@echo "4. Run 'make init-terraform' to initialize Terraform"
-	@echo "5. Run 'make netbox-up' to start Netbox"
-	@echo "6. Run 'make zabbix-up' to start Zabbix"
+	@echo "1. Edit postgres-shared/postgres.env with a strong password"
+	@echo "2. Edit terraform/proxmox/terraform.tfvars with your Proxmox credentials"
+	@echo "3. Edit netbox/env/*.env with your Netbox configuration"
+	@echo "4. Edit zabbix/env/*.env with your Zabbix configuration"
+	@echo "5. Run 'make start-all' to start all services"
+	@echo "6. Run 'make init-terraform' to initialize Terraform"
 
 clean: ## Clean up temporary files
 	@echo "Cleaning up..."
