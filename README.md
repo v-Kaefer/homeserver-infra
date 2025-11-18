@@ -57,11 +57,17 @@ module "web_server" {
 
 ## Documentation
 
+### Getting Started
 - **[Getting Started Guide](docs/getting-started.md)** - Complete walkthrough
 - [Proxmox Setup](docs/proxmox-setup.md) - Install and configure Proxmox
 - [Terraform Guide](docs/terraform-setup.md) - Terraform usage and examples
 - [Netbox Guide](docs/netbox-setup.md) - Netbox deployment and API
 - [Zabbix Guide](docs/zabbix-setup.md) - Zabbix monitoring setup
+
+### Planning & Architecture
+- **[Infrastructure Analysis](docs/infrastructure-analysis.md)** - Comprehensive analysis, redundancies, and improvements
+- [Infrastructure Diagram](docs/infrastructure-diagram.md) - Visual architecture reference for Draw.io
+- [n8n Integration Plan](docs/n8n-integration-plan.md) - Workflow automation roadmap
 
 ## Project Structure
 

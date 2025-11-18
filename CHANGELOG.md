@@ -8,6 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Infrastructure Analysis & Planning Documentation**:
+  - Comprehensive infrastructure analysis (`docs/infrastructure-analysis.md`)
+    - Analysis of current stack strengths and weaknesses
+    - Identification of redundancies (dual PostgreSQL, monitoring overlap)
+    - Improvement recommendations (consolidate DB, unified backups, integration)
+    - SquirrelServersManager evaluation (recommendation: keep current stack)
+    - Prioritized action items with effort estimates
+  - Infrastructure diagram documentation (`docs/infrastructure-diagram.md`)
+    - Draw.io AI-compatible descriptions
+    - Multi-layer architecture diagrams
+    - Network topology visualizations
+    - Workflow and data flow diagrams
+    - Color scheme and icon guidelines
+  - n8n workflow automation integration plan (`docs/n8n-integration-plan.md`)
+    - Complete deployment configuration
+    - 5 pre-designed workflow templates
+    - API integration details for all services
+    - Security and monitoring configuration
+    - 3-phase implementation roadmap
+    - ROI analysis and best practices
+- Documentation section restructured with Planning & Architecture subsection
+
+### Recommendations Summary
+**High Priority** (Do Now):
+  1. Consolidate PostgreSQL instances (reduce resource usage 50%)
+  2. Implement unified backup system
+  3. Add Terraform-Netbox-Zabbix integration
+
+**Future** (Planned):
+  - n8n for workflow orchestration
+  - Health checks for all services
+  - Infrastructure diagram creation
+
+**Not Recommended**:
+  - SquirrelServersManager replacement (current stack more flexible)
+
+### Previous Additions
 - **Zabbix monitoring integration**:
   - Docker Compose stack for Zabbix server, web interface, PostgreSQL, and agent
   - Separate Zabbix Makefile (`zabbix/Makefile`) with dedicated commands:
