@@ -1,0 +1,62 @@
+services:
+  netbox:
+    image: netboxcommunity/netbox:latest
+    depends_on:
+      - postgres
+      - redis
+      - redis-cache
+    env_file: env/netbox.env
+    user: 'unit:root'
+    volumes:
+      - ./configuration:/etc/netbox/config:z,ro
+      - netbox-media-files:/opt/netbox/netbox/media:z
+      - netbox-reports-files:/opt/netbox/netbox/reports:z
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:z
+    ports:
+      - "8000:8080"
+
+  netbox-worker:
+    image: netboxcommunity/netbox:latest
+    depends_on:
+      - netbox
+    command: /opt/netbox/venv/bin/python /opt/netbox/netbox/manage.py rqworker
+    env_file: env/netbox.env
+    user: 'unit:root'
+    volumes:
+      - ./configuration:/etc/netbox/config:z,ro
+      - netbox-media-files:/opt/netbox/netbox/media:z
+      - netbox-reports-files:/opt/netbox/netbox/reports:z
+      - netbox-scripts-files:/opt/netbox/netbox/scripts:z
+
+  netbox-housekeeping:
+    image: netboxcommunity/netbox:latest
+    depends_on:
+      - netbox
+    command: /opt/netbox/housekeeping.sh
+    env_file: env/netbox.env
+    user: 'unit:root'
+    volumes:
+      - ./configuration:/etc/netbox/config:z,ro
+
+  postgres:
+    image: postgres:15-alpine
+    env_file: env/postgres.env
+    volumes:
+      - netbox-postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - netbox-redis-data:/data
+
+  redis-cache:
+    image: redis:7-alpine
+    command: redis-server
+
+volumes:
+  netbox-media-files:
+  netbox-postgres-data:
+  netbox-redis-data:
+  netbox-reports-files:
+  netbox-scripts-files:

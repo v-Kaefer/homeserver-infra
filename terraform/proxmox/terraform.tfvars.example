@@ -1,0 +1,8 @@
+# Example Terraform configuration values
+# Copy this file to terraform.tfvars and update with your actual values
+
+proxmox_api_url          = "https://your-proxmox-server:8006/api2/json"
+proxmox_api_token_id     = "user@pam!token_name"
+proxmox_api_token_secret = "your-api-token-secret"
+proxmox_tls_insecure     = true  # Set to false in production with valid certificates
+proxmox_node             = "pve"

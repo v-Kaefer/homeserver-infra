@@ -1,0 +1,28 @@
+services:
+  postgres-shared:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_SHARED_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=netbox,zabbix
+    volumes:
+      - postgres-shared-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - management-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-shared-data:
+    driver: local
+
+networks:
+  management-net:
+    driver: bridge
